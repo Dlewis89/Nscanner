@@ -113,22 +113,6 @@ Some of the challenges encountered while building this project included:
 
 ---
 
-## Next Project
-
-**Project 002 – TCP Echo Server**
-
-The next project in this series will focus on building a TCP server to learn:
-
-- `bind()`
-- `listen()`
-- `accept()`
-- `recv()`
-- `send()`
-
-and understand networking from the server's perspective.
-
----
-
 ## License
 
 MIT
