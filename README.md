@@ -1,21 +1,46 @@
 # Network Scanner
 
-A simple TCP port scanner written in C for Linux.
+> **Project 001 – Systems Programming**
+>
+> This project is part of my journey into systems programming using C and Linux.
+> Rather than following tutorials, my goal is to build progressively more complex tools while learning how operating systems, networking, and computer systems work under the hood.
+>
+> For this project, the objective was to learn the fundamentals of TCP networking by implementing a simple TCP port scanner from scratch using the POSIX socket API.
 
-This project was built as part of my journey into systems programming. The goal was to learn how TCP sockets work by implementing a basic port scanner from scratch using the POSIX socket API.
+---
+
+## Overview
+
+The scanner attempts to establish a TCP connection to each port in a user-defined range. If the connection succeeds, the port is reported as open.
+
+This project was intentionally written without external networking libraries to gain a deeper understanding of sockets and the Linux networking API.
+
+---
 
 ## Features
 
-- Scan a single IPv4 address
-- Configure start and end port ranges
-- Display open TCP ports
+- Scan IPv4 addresses
+- Custom start and end port ranges
+- Detect open TCP ports
 - Simple command-line interface
-- Built using POSIX sockets
+- Modular project structure using header and source files
 
-## Requirements
+---
 
-- Linux
-- GCC with C17 support
+## Project Structure
+
+```
+network-scanner/
+├── include/
+│   └── scanner.h
+├── src/
+│   ├── main.c
+│   └── scanner.c
+├── README.md
+└── Makefile
+```
+
+---
 
 ## Building
 
@@ -23,44 +48,86 @@ This project was built as part of my journey into systems programming. The goal 
 gcc -std=c17 -Wall -Wextra -Wpedantic -Iinclude -o nscanner src/main.c src/scanner.c
 ```
 
+---
+
 ## Usage
 
-Scan localhost using the default port range:
+Scan localhost:
 
 ```bash
 ./nscanner
 ```
 
-Scan a specific host:
+Scan another host:
 
 ```bash
-./nscanner 192.168.1.1
+./nscanner 192.168.1.100
 ```
 
-Scan a custom port range:
+Scan a specific range:
 
 ```bash
 ./nscanner 127.0.0.1 1 1024
 ```
 
+---
+
 ## What I Learned
+
+During this project I learned:
 
 - Creating TCP sockets with `socket()`
 - Connecting to remote hosts with `connect()`
-- Using `sockaddr_in`
-- Converting IP addresses with `inet_pton()`
-- Converting ports to network byte order with `htons()`
+- Using `struct sockaddr_in`
+- Converting IPv4 addresses with `inet_pton()`
+- Converting ports using `htons()`
+- Error handling with `perror()` and `errno`
 - Reading Linux man pages
-- Working with pointers and structures
-- Organizing a small C project using header and source files
+- Passing structures by pointer
+- Separating interfaces (`.h`) from implementations (`.c`)
+- Basic project organization in C
+
+---
+
+## Challenges
+
+Some of the challenges encountered while building this project included:
+
+- Understanding pointers to structures
+- Learning the difference between `.` and `->`
+- Passing structures correctly to `connect()`
+- Handling terminal output while displaying scan progress
+- Parsing command-line arguments
+- Organizing the project into multiple source files
+
+---
 
 ## Future Improvements
 
-- Add hostname support using `getaddrinfo()`
-- Add configurable connection timeouts
-- Scan multiple ports concurrently
-- Support IPv6
-- Improve terminal output and progress display
+- Hostname support using `getaddrinfo()`
+- Configurable connection timeouts
+- Parallel scanning using threads
+- IPv6 support
+- Better progress reporting
+- Service detection
+
+---
+
+## Next Project
+
+**Project 002 – TCP Echo Server**
+
+The next project in this series will focus on building a TCP server to learn:
+
+- `bind()`
+- `listen()`
+- `accept()`
+- `recv()`
+- `send()`
+
+and understand networking from the server's perspective.
+
+---
 
 ## License
 
