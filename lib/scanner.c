@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -6,50 +7,62 @@
 
 #include "scanner.h"
 
-int set_sockaddr(struct sockaddr_in *addr, const char *target_ip) {
+Scanner *scanner_init(const char *target_ip) {
+    Scanner *scanner = malloc(sizeof(*scanner));
+    if (scanner == NULL) {
+        return NULL;
+    }
 
-    memset(addr, 0, sizeof(*addr));
+    struct sockaddr_in addr;
 
-    (*addr).sin_family = AF_INET;
+    memset(&addr, 0, sizeof(addr));
 
-    if (inet_pton(AF_INET, target_ip, &(*addr).sin_addr) <= 0) {
-        perror("inet_pton");
+    addr.sin_family = AF_INET;
+
+    if (inet_pton(AF_INET, target_ip, &addr.sin_addr) <= 0) {
+        scanner->status = INVALID_TARGET_IP;
+    }
+
+    scanner->addr = addr;
+
+    return scanner;
+}
+
+int set_scanner_port(Scanner *scanner, int starting_port, int ending_port) {
+    if (starting_port < 1 || starting_port > 65535 || ending_port < 1 || ending_port > 65535 || starting_port > ending_port) {
+        scanner->status = INVALID_SCANNER_PORT;
+    }
+ 
+    scanner->starting_port = starting_port;
+    scanner->ending_port = ending_port;
+ 
+    return 0;
+}
+
+// Todo Need to refactor this function. just need to know connect to socket successfully or not and remove all printf and add custom error handling.
+int scanner_scan_port(Scanner *scanner, int port) {
+
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    scanner->addr.sin_port = htons(port);
+
+    if (sockfd == -1) {
+        scanner->status = INVALID_SCANNER_SOCK_DESCRIPTOR;
+    }
+
+    int connection = connect(sockfd, (struct sockaddr *)&scanner->addr, sizeof(scanner->addr));
+    close(sockfd);
+
+    if (connection != 0) { 
         return 1;
     }
 
     return 0;
 }
 
-
-int start_scan(struct sockaddr_in *addr, const char *target_ip, int starting_port, int ending_port) {
+void scanner_destroy(Scanner *scanner) {
+    if (scanner != NULL) {
+        free(scanner);
+    }
+}
     
-    if(set_sockaddr(addr, target_ip) == 1) {
-        printf("failed to set sockaddr");
-        return 1;
-    }
-
-    for(int port = starting_port; port <= ending_port; port++) {
-
-        printf("\rScanning port %d", port);
-        fflush(stdout);
-
-        int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-        (*addr).sin_port = htons(port);
-
-        if (sockfd == -1) {
-            perror("socket");
-            return 1;
-        }
-
-        int connection = connect(sockfd, (struct sockaddr *)addr, sizeof(*addr));
-
-        if (connection == 0) {
-            printf("\r\033[KPort %d is Open\n", port);
-        }
-
-        close(sockfd);
-    }
-
-    return 0;
-}
